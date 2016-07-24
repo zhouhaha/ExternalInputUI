@@ -1,0 +1,12 @@
+[
+    {
+        "modid": "externalinputui",
+        "name": "ExternalInputUI",
+        "version": "${version}",
+        "mcversion": "${mcversion}",
+        "authorList": ["andylizi"],
+        "dependencies": [
+            "mod_MinecraftForge"
+        ]
+    }
+]

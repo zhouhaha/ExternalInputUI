@@ -15,6 +15,14 @@
  */
 package net.andylizi.externalinputui;
 
+import cpw.mods.fml.client.registry.ClientRegistry;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -22,19 +30,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.StatCollector;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 
 /**
  * @author andylizi
  */
-@Mod(modid = ExternalInputUI.MODID, name = ExternalInputUI.NAME, version = ExternalInputUI.VERSION, acceptedMinecraftVersions = "1.8")
+@Mod(modid = ExternalInputUI.MODID, name = ExternalInputUI.NAME, version = ExternalInputUI.VERSION, acceptedMinecraftVersions = "1.7")
 public class ExternalInputUI {
     public static final String MODID = "externalinputui";
     public static final String NAME = "ExternalInputUI";
@@ -72,15 +72,18 @@ public class ExternalInputUI {
         String str = InputGUI.showInputDialog(StatCollector.translateToLocal("gui.externalinput.title"), 
                 StatCollector.translateToLocal("gui.done"),
                 StatCollector.translateToLocal("gui.cancel"));
-        if(str == null)
-            return;
-        if(str.isEmpty())
-            return;
-        minecraft.thePlayer.sendChatMessage(str);
-        try {
-            Thread.sleep(100);
-        } catch(InterruptedException ex) {}
-        minecraft.displayGuiScreen(null);
+        try{
+            if(str == null)
+                return;
+            if(str.isEmpty())
+                return;
+            minecraft.thePlayer.sendChatMessage(str);
+            try {
+                Thread.sleep(100);
+            } catch(InterruptedException ex) {}
+        }finally{
+            minecraft.displayGuiScreen(null);
+        }
     }
     
     @SubscribeEvent

@@ -15,11 +15,14 @@
  */
 package net.andylizi.externalinputui;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.text.translation.I18n;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -30,7 +33,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 /**
  * @author andylizi
  */
-@Mod(modid = ExternalInputUI.MODID, name = ExternalInputUI.NAME, version = ExternalInputUI.VERSION, acceptedMinecraftVersions = "1.8")
+@Mod(modid = ExternalInputUI.MODID, name = ExternalInputUI.NAME, version = ExternalInputUI.VERSION, acceptedMinecraftVersions = "1.9")
 public class ExternalInputUI {
     public static final String MODID = "externalinputui";
     public static final String NAME = "ExternalInputUI";
@@ -39,6 +42,14 @@ public class ExternalInputUI {
     public static ExternalInputUI instance;
     
     KeyBinding keyBinding;
+    ExecutorService executor = Executors.newCachedThreadPool(new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = new Thread(null, r, MODID);
+            thread.setDaemon(true);
+            return thread;
+        }
+    });
     
     @EventHandler
     public void preInit(FMLPreInitializationEvent event){
@@ -48,14 +59,14 @@ public class ExternalInputUI {
     
     @EventHandler
     public void init(FMLInitializationEvent event){
-        FMLCommonHandler.instance().bus().register(this);
+        MinecraftForge.EVENT_BUS.register(this);
         InputGUI.initLAF();
     }
     
     public void openInputUI(){
-        String str = InputGUI.showInputDialog(StatCollector.translateToLocal("gui.externalinput.title"), 
-                StatCollector.translateToLocal("gui.done"), 
-                StatCollector.translateToLocal("gui.cancel"));
+        String str = InputGUI.showInputDialog(I18n.translateToLocal("gui.externalinput.title"), 
+                I18n.translateToLocal("gui.done"), 
+                I18n.translateToLocal("gui.cancel"));
         if(str == null)
             return;
         if(str.isEmpty())
@@ -71,14 +82,12 @@ public class ExternalInputUI {
     @SubscribeEvent
     public void onKey(KeyInputEvent.KeyInputEvent event){
         if(keyBinding.isPressed()){
-            Thread thread = new Thread(){
+            executor.submit(new Runnable() {
                 @Override
                 public void run() {
                     openInputUI();
                 }
-            };
-            thread.setDaemon(true);
-            thread.start();
+            });
         }
     }
 }

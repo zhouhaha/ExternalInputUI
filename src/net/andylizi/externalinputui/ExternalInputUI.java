@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.MinecraftForge;
@@ -38,8 +39,10 @@ public class ExternalInputUI {
     public static final String MODID = "externalinputui";
     public static final String NAME = "ExternalInputUI";
     public static final String VERSION = "1.0.0";
+    
     @Mod.Instance(ExternalInputUI.MODID)
     public static ExternalInputUI instance;
+    private static Minecraft minecraft = Minecraft.getMinecraft();
     
     KeyBinding keyBinding;
     ExecutorService executor = Executors.newCachedThreadPool(new ThreadFactory() {
@@ -50,7 +53,8 @@ public class ExternalInputUI {
             return thread;
         }
     });
-    
+    private Boolean state = false;
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent event){
         keyBinding = new KeyBinding("key.open_external_input", 23, "key.categories.misc"); // 'I'
@@ -61,6 +65,7 @@ public class ExternalInputUI {
     public void init(FMLInitializationEvent event){
         MinecraftForge.EVENT_BUS.register(this);
         InputGUI.initLAF();
+        InputGUI fake = new InputGUI("TEST", "TEST", "TEST");
     }
     
     public void openInputUI(){
@@ -71,21 +76,27 @@ public class ExternalInputUI {
             return;
         if(str.isEmpty())
             return;
-        Minecraft mc = Minecraft.getMinecraft();
-        mc.thePlayer.sendChatMessage(str);
+        minecraft.thePlayer.sendChatMessage(str);
         try {
             Thread.sleep(100);
         } catch(InterruptedException ex) {}
-        mc.displayGuiScreen(null);
+        minecraft.displayGuiScreen(null);
     }
     
     @SubscribeEvent
     public void onKey(KeyInputEvent.KeyInputEvent event){
-        if(keyBinding.isPressed()){
+        if(keyBinding.isPressed() && minecraft.thePlayer != null){
+            synchronized(state){
+                if(state)
+                    return;
+                state = true;
+            }
+            minecraft.displayGuiScreen(new GuiIngameMenu());
             executor.submit(new Runnable() {
                 @Override
                 public void run() {
                     openInputUI();
+                    state = false;
                 }
             });
         }

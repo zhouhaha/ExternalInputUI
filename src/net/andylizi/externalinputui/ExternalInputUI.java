@@ -23,6 +23,9 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent.KeyInputEvent;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.StatCollector;
@@ -39,6 +42,14 @@ public class ExternalInputUI {
     public static ExternalInputUI instance;
     
     KeyBinding keyBinding;
+    ExecutorService executor = Executors.newCachedThreadPool(new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = new Thread(null, r, MODID);
+            thread.setDaemon(true);
+            return thread;
+        }
+    });
     
     @EventHandler
     public void preInit(FMLPreInitializationEvent event){
@@ -71,14 +82,12 @@ public class ExternalInputUI {
     @SubscribeEvent
     public void onKey(KeyInputEvent.KeyInputEvent event){
         if(keyBinding.isPressed()){
-            Thread thread = new Thread(){
+            executor.submit(new Runnable() {
                 @Override
                 public void run() {
                     openInputUI();
                 }
-            };
-            thread.setDaemon(true);
-            thread.start();
+            });
         }
     }
 }

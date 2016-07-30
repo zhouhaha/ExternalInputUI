@@ -140,7 +140,7 @@ public class InputGUI extends JDialog {
         if(evt.getKeyCode() == KeyEvent.VK_ENTER)
             btnDone.doClick();
         else if(evt.getKeyCode() == KeyEvent.VK_ESCAPE)
-            onClickCancel(null);
+            onClickClose(null);
     }//GEN-LAST:event_onPressEnter
 
     private void onClickClose(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_onClickClose

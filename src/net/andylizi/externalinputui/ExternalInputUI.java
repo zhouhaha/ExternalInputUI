@@ -72,15 +72,18 @@ public class ExternalInputUI {
         String str = InputGUI.showInputDialog(StatCollector.translateToLocal("gui.externalinput.title"), 
                 StatCollector.translateToLocal("gui.done"),
                 StatCollector.translateToLocal("gui.cancel"));
-        if(str == null)
-            return;
-        if(str.isEmpty())
-            return;
-        minecraft.thePlayer.sendChatMessage(str);
-        try {
-            Thread.sleep(100);
-        } catch(InterruptedException ex) {}
-        minecraft.displayGuiScreen(null);
+        try{
+            if(str == null)
+                return;
+            if(str.isEmpty())
+                return;
+            minecraft.thePlayer.sendChatMessage(str);
+            try {
+                Thread.sleep(100);
+            } catch(InterruptedException ex) {}
+        }finally{
+            minecraft.displayGuiScreen(null);
+        }
     }
     
     @SubscribeEvent

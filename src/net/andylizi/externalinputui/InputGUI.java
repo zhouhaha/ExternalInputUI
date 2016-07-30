@@ -64,6 +64,11 @@ public class InputGUI extends JDialog {
         setModal(true);
         setName("externalInputUI"); // NOI18N
         setResizable(false);
+        addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                onFocus(evt);
+            }
+        });
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 onClickClose(evt);
@@ -134,12 +139,18 @@ public class InputGUI extends JDialog {
     private void onPressEnter(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_onPressEnter
         if(evt.getKeyCode() == KeyEvent.VK_ENTER)
             btnDone.doClick();
+        else if(evt.getKeyCode() == KeyEvent.VK_ESCAPE)
+            onClickCancel(null);
     }//GEN-LAST:event_onPressEnter
 
     private void onClickClose(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_onClickClose
         textbox.setText(null);
         dispose();
     }//GEN-LAST:event_onClickClose
+
+    private void onFocus(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_onFocus
+        textbox.requestFocusInWindow();
+    }//GEN-LAST:event_onFocus
 
     public static String showInputDialog(String title, String btnDone, String btnCancel){
         InputGUI ui = new InputGUI(title, btnDone, btnCancel);
